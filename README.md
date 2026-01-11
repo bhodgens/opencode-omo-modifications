@@ -14,7 +14,7 @@ A **smart allowlist system** for OpenCode that provides security with intelligen
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/opencode-omo-modifications.git
+git clone https://github.com/bhodgens/opencode-omo-modifications.git
 cd opencode-omo-modifications
 
 # Install with Makefile

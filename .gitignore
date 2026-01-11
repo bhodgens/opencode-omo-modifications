@@ -1,0 +1,39 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+*~
+*.swp
+*.swo
+.#*
+\#*#
+.*.swp
+
+# Temporary files
+*.tmp
+*.bak
+*.temp
+.~~*
+
+# Logs
+*.log
+
+# Build artifacts
+dist/
+build/
+*.tar.gz
+*.zip
+
+# Node modules (if any)
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
