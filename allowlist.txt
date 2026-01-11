@@ -1,0 +1,205 @@
+git status
+git diff
+git log *
+git blame* 
+git show* 
+git branch* 
+git rev-parse* 
+docker* 
+head*
+ls *
+mkdir * 
+grep * 
+more * 
+less * 
+grep* 
+awk* 
+sed -n* 
+wc*
+rg*
+pwd
+ls
+tree
+stat *
+file *
+du -h* 
+df -h
+find .
+which* 
+whereis* 
+id
+date
+whoami
+uname -a
+printenv 
+env
+python --version
+pip list
+ping* 
+curl -I * 
+curl -v * 
+wget --spider *
+readlink * 
+mount 
+mount | grep * 
+statfs * 
+dirname* 
+basename * 
+diff * 
+diff -u
+jq *
+
+# File operations
+cat *
+touch *
+cp *
+mv *
+rm *
+chmod *
+chown *
+
+# Package managers
+npm *
+yarn *
+pnpm *
+pip *
+pip3 *
+python *
+python3 *
+node *
+npx *
+
+# Build tools
+make *
+cmake *
+cargo *
+go *
+rustc *
+java *
+javac *
+gradle *
+maven *
+mvn *
+
+# Container tools
+docker compose *
+docker-compose *
+podman *
+kubectl *
+helm *
+
+# Process management
+ps *
+kill *
+killall *
+jobs *
+fg *
+bg *
+nohup *
+
+# System tools
+systemctl *
+service *
+top *
+htop *
+lsof *
+netstat *
+ss *
+tar *
+unzip *
+zip *
+
+# Text editors
+nano *
+vim *
+vi *
+emacs *
+code *
+
+# Version control (extended)
+git add *
+git commit *
+git push *
+git pull *
+git fetch *
+git clone *
+git checkout *
+git merge *
+git rebase *
+git reset *
+git stash *
+git tag *
+
+# Search and find
+locate *
+find *
+which *
+whereis *
+
+# Development tools
+gcc *
+g++ *
+clang *
+make *
+ctest *
+valgrind *
+gdb *
+
+# Configuration
+source *
+export *
+alias *
+echo *
+
+# Network tools
+ssh *
+scp *
+rsync *
+wget *
+curl *
+
+# Archive and compression
+gzip *
+gunzip *
+bzip2 *
+bunzip2 *
+xz *
+unxz *
+
+# JSON/YAML tools
+yq *
+toml *
+
+# Database tools
+mysql *
+psql *
+sqlite3 *
+mongo *
+
+# Kubernetes (extended)
+kubens *
+kubectx *
+helm *
+
+# Cloud CLI tools
+aws *
+gcloud *
+az *
+terraform *
+
+# Monitoring and logs
+journalctl *
+dmesg *
+tail *
+
+# File system
+df *
+du *
+fdisk *
+lsblk *
+mount *
+umount *
+
+# User management
+sudo *
+su *

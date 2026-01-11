@@ -1,0 +1,294 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ALLOWLIST="${HOME}/.config/opencode/allowlist.txt"
+
+# Create allowlist directory if it doesn't exist
+mkdir -p "$(dirname "$ALLOWLIST")"
+
+# Create default allowlist if it doesn't exist
+if [[ ! -f "$ALLOWLIST" ]]; then
+  cat > "$ALLOWLIST" << 'INNER_EOF'
+git status
+git diff
+git log *
+git blame* 
+git show* 
+git branch* 
+git rev-parse* 
+docker* 
+head*
+ls *
+mkdir * 
+grep * 
+more * 
+less * 
+grep* 
+awk* 
+sed -n* 
+wc*
+rg*
+pwd
+ls
+tree
+stat *
+file *
+du -h* 
+df -h
+find .
+which* 
+whereis* 
+id
+date
+whoami
+uname -a
+printenv 
+env
+python --version
+pip list
+ping* 
+curl -I * 
+curl -v * 
+wget --spider *
+readlink * 
+mount 
+mount | grep * 
+statfs * 
+dirname* 
+basename * 
+diff * 
+diff -u
+jq *
+
+# File operations
+cat *
+touch *
+cp *
+mv *
+rm *
+chmod *
+chown *
+
+# Package managers
+npm *
+yarn *
+pnpm *
+pip *
+pip3 *
+python *
+python3 *
+node *
+npx *
+
+# Build tools
+make *
+cmake *
+cargo *
+go *
+rustc *
+java *
+javac *
+gradle *
+maven *
+mvn *
+
+# Container tools
+docker compose *
+docker-compose *
+podman *
+kubectl *
+helm *
+
+# Process management
+ps *
+kill *
+killall *
+jobs *
+fg *
+bg *
+nohup *
+
+# System tools
+systemctl *
+service *
+top *
+htop *
+lsof *
+netstat *
+ss *
+tar *
+unzip *
+zip *
+
+# Text editors
+nano *
+vim *
+vi *
+emacs *
+code *
+
+# Version control (extended)
+git add *
+git commit *
+git push *
+git pull *
+git fetch *
+git clone *
+git checkout *
+git merge *
+git rebase *
+git reset *
+git stash *
+git tag *
+
+# Search and find
+locate *
+find *
+which *
+whereis *
+
+# Development tools
+gcc *
+g++ *
+clang *
+make *
+ctest *
+valgrind *
+gdb *
+
+# Configuration
+source *
+export *
+alias *
+echo *
+
+# Network tools
+ssh *
+scp *
+rsync *
+wget *
+curl *
+
+# Archive and compression
+gzip *
+gunzip *
+bzip2 *
+bunzip2 *
+xz *
+unxz *
+
+# JSON/YAML tools
+yq *
+toml *
+
+# Database tools
+mysql *
+psql *
+sqlite3 *
+mongo *
+
+# Kubernetes (extended)
+kubens *
+kubectx *
+helm *
+
+# Cloud CLI tools
+aws *
+gcloud *
+az *
+terraform *
+
+# Monitoring and logs
+journalctl *
+dmesg *
+tail *
+
+# File system
+df *
+du *
+fdisk *
+lsblk *
+mount *
+umount *
+
+# User management
+sudo *
+su *
+INNER_EOF
+fi
+
+cmd="$*"
+
+# If no command provided, just exit
+if [[ -z "$cmd" ]]; then
+  echo "Usage: opencode-exec <command>" >&2
+  exit 1
+fi
+
+# Check if command is allowed
+allowed=false
+while IFS= read -r rule; do
+  [[ -z "$rule" ]] && continue
+  # Skip comments
+  [[ "$rule" =~ ^[[:space:]]*# ]] && continue
+  # Check if command matches rule (supports glob patterns)
+  if [[ "$cmd" == $rule ]]; then
+    allowed=true
+    break
+  fi
+done < "$ALLOWLIST"
+
+if [[ "$allowed" == "true" ]]; then
+  # Command is allowed, execute it
+  exec $cmd
+else
+  # Command is not allowed, prompt user
+  echo "⚠️  Command not in allowlist: $cmd" >&2
+  echo "📍 Allowlist location: $ALLOWLIST" >&2
+  echo "" >&2
+  
+  # Check for allow-once environment variable first
+  if [[ "${OPENCODE_ALLOW_ONCE:-}" == "true" ]]; then
+    echo "🔓 Allow-once mode: Executing command: $cmd" >&2
+    exec $cmd
+  fi
+  
+  # Check if we're in an interactive environment
+  # Interactive if:
+  # 1. We have a terminal AND not in allow-once mode
+  # 2. We have piped input (for testing)
+  # 3. We're being called by OpenCode (which provides standard input)
+  if [[ -t 0 ]] || [[ -p /dev/stdin ]]; then
+    read -p "Do you want to: [A]llow once, [P]ermanently add, [D]eny? " -n 1 -r response
+    echo "" >&2
+    
+    case "$response" in
+      [Aa]* )
+        echo "🔓 Executing command once: $cmd" >&2
+        exec $cmd
+        ;;
+      [Pp]* )
+        echo "📝 Adding command to allowlist..." >&2
+        echo "$cmd" >> "$ALLOWLIST"
+        echo "✅ Added. Executing: $cmd" >&2
+        exec $cmd
+        ;;
+      [Dd]* )
+        echo "🚫 Command denied." >&2
+        exit 126
+        ;;
+      * )
+        echo "❌ Invalid choice. Command denied." >&2
+        exit 126
+        ;;
+    esac
+  else
+    # Non-interactive environment - prompt OpenCode
+    echo "🤖 OpenCode: This command requires user approval." >&2
+    echo "💡 To allow this command permanently, add it to allowlist:" >&2
+    echo "   echo \"$cmd\" >> \"$ALLOWLIST\"" >&2
+    echo "💡 To allow this command once, run:" >&2
+    echo "   OPENCODE_ALLOW_ONCE=true $cmd" >&2
+    exit 126
+  fi
+fi
