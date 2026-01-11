@@ -1,230 +1,393 @@
 # OpenCode OMO Modifications
 
-A **smart allowlist system** for OpenCode that provides security with intelligent prompting for unauthorized commands.
+🔒 **A smart allowlist system** for OpenCode that provides security with intelligent prompting for unauthorized commands.
 
-## ✨ Features
+## 🎯 What This Does
 
-- **🔒 Persistent Allowlist** - Commands saved to `~/.config/opencode/allowlist.txt`
-- **🤖 Smart Prompting** - Interactive approval for unauthorized commands
-- **⚡ Allow-Once Mode** - Execute specific commands without permanently adding them
-- **📦 Easy Installation** - Simple Makefile-based setup
-- **🎯 Comprehensive Defaults** - 150+ pre-approved common development commands
+- **🛡️ Security First**: Only allow explicitly approved commands to execute
+- **🤖 Smart Prompting**: Ask for permission when commands aren't in allowlist
+- **⚡ Flexible**: Allow commands once or permanently add them
+- **📦 Easy Setup**: One-command installation with Makefile
+- **🎯 Developer Ready**: 150+ pre-approved commands for common workflows
 
-## 🚀 Quick Install
+---
 
+## 🚀 Installation (Step-by-Step)
+
+### Prerequisites
+- ✅ Git installed
+- ✅ Bash shell
+- ✅ Standard Unix tools (mkdir, cp, chmod)
+
+### Step 1: Clone the Repository
 ```bash
-# Clone the repository
 git clone https://github.com/bhodgens/opencode-omo-modifications.git
 cd opencode-omo-modifications
+```
 
-# Install with Makefile
+### Step 2: Install with Makefile
+```bash
 make install
+```
 
-# Add to your shell profile
+**What this does:**
+- 📁 Creates `~/bin/` directory (if needed)
+- 📋 Installs `opencode-exec` wrapper to `~/bin/`
+- ⚙️ Creates `~/.config/opencode/` directory (if needed)
+- 📝 Installs default `allowlist.txt` (if you don't have one)
+- 🔐 Sets correct permissions on wrapper script
+
+### Step 3: Configure Your Shell
+**For Zsh (default on macOS):**
+```bash
 echo 'export OPENCODE_EXEC_WRAPPER="$HOME/bin/opencode-exec"' >> ~/.zshrc
 echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
+```
 
-# Start OpenCode with wrapper
+**For Bash:**
+```bash
+echo 'export OPENCODE_EXEC_WRAPPER="$HOME/bin/opencode-exec"' >> ~/.bashrc
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+### Step 4: Verify Installation
+```bash
+# Check wrapper is executable
+ls -la ~/bin/opencode-exec
+
+# Test wrapper works
+~/bin/opencode-exec pwd
+
+# Verify environment variable is set
+echo $OPENCODE_EXEC_WRAPPER
+```
+
+### Step 5: Start OpenCode with Wrapper
+```bash
 opencode
 ```
 
-## 📋 Files
+---
 
-- **`opencode-exec`** - The main wrapper script with intelligent prompting
-- **`allowlist.txt`** - Comprehensive default allowlist with 150+ commands
-- **`Makefile`** - Automated installation and management
-- **`README.md`** - This documentation
+## 🎮 How It Works
 
-## 🎮 Command Handling
+### ✅ Allowed Commands (No Prompting)
+Commands matching patterns in your allowlist execute immediately.
 
-### ✅ Allowed Commands
-Commands matching allowlist patterns execute immediately without prompting.
+### ⚠️ Unauthorized Commands (Interactive Prompt)
 
-### ⚠️ Unauthorized Commands
-
-**Interactive Mode (Terminal):**
-```
+**When you run a command not in allowlist:**
+```bash
 ⚠️  Command not in allowlist: some-command arg1 arg2
-📍 Allowlist location: /Users/caimlas/.config/opencode/allowlist.txt
+📍 Allowlist location: /Users/username/.config/opencode/allowlist.txt
 
 Do you want to: [A]llow once, [P]ermanently add, [D]eny?
 ```
 
-**Non-Interactive Mode (OpenCode):**
-```
+**Options:**
+- **[A]llow once** - Execute this command one time only
+- **[P]ermanently add** - Add to allowlist and execute immediately
+- **[D]eny** - Block the command
+
+### 🤖 Non-Interactive Mode (OpenCode)
+
+When OpenCode runs commands, it shows:
+```bash
 🤖 OpenCode: This command requires user approval.
 💡 To allow this command permanently, add it to allowlist:
-   echo "command args" >> "/Users/caimlas/.config/opencode/allowlist.txt"
+   echo "command args" >> "/Users/username/.config/opencode/allowlist.txt"
 💡 To allow this command once, run:
    OPENCODE_ALLOW_ONCE=true command args
 ```
 
-## 📦 Installation Options
+---
 
-### Standard Installation
+## 📋 Managing Your Allowlist
+
+### View Current Allowlist
 ```bash
-make install
+cat ~/.config/opencode/allowlist.txt
 ```
 
-### Uninstallation
+### Add Commands Manually
 ```bash
-make uninstall
+# Add a specific command
+echo "npm run build" >> ~/.config/opencode/allowlist.txt
+
+# Add a pattern (all npm commands)
+echo "npm *" >> ~/.config/opencode/allowlist.txt
 ```
 
-### Check Dependencies
+### Search for Commands
 ```bash
-make check-deps
+# Find all docker-related commands
+grep "docker" ~/.config/opencode/allowlist.txt
+
+# Count total allowed commands
+wc -l ~/.config/opencode/allowlist.txt
 ```
 
-### Clean Temporary Files
+### Remove Commands
 ```bash
-make clean
+# Edit the allowlist file
+nano ~/.config/opencode/allowlist.txt
+
+# Or remove specific lines
+sed -i '' '/npm run build/d' ~/.config/opencode/allowlist.txt
 ```
 
-## 🔧 Configuration
+---
 
-### Environment Variables
+## 🎯 Pre-Approved Command Categories
 
-- **`OPENCODE_EXEC_WRAPPER`** - Path to the wrapper script
-- **`OPENCODE_ALLOW_ONCE`** - Allow a specific command once without prompting
+### 📦 Development Tools
+- **Package Managers**: `npm *`, `yarn *`, `pnpm *`, `pip *`, `pip3 *`, `node *`, `npx *`
+- **Build Tools**: `make *`, `cmake *`, `cargo *`, `go *`, `java *`, `gradle *`, `maven *`, `mvn *`
+- **Compilers**: `gcc *`, `g++ *`, `clang *`, `rustc *`, `javac *`
+- **Debuggers**: `gdb *`, `valgrind *`
 
-### Custom Allowlist Location
-```bash
-export OPENCODE_ALLOWLIST="/path/to/custom/allowlist.txt"
-```
-
-## 📋 Default Allowlist Categories
-
-The default allowlist includes commands for:
-
-### **Development Tools**
-- **Package Managers**: `npm`, `yarn`, `pnpm`, `pip`, `pip3`, `node`, `npx`
-- **Build Tools**: `make`, `cmake`, `cargo`, `go`, `java`, `gradle`, `maven`, `mvn`
-- **Compilers**: `gcc`, `g++`, `clang`, `rustc`, `javac`
-- **Debuggers**: `gdb`, `valgrind`
-
-### **Container & Cloud**
-- **Docker**: `docker *`, `docker compose *`, `docker-compose *`
+### 🐳 Container & Cloud
+- **Docker**: `docker *`, `docker compose *`, `docker-compose *`, `podman *`
 - **Kubernetes**: `kubectl *`, `helm *`, `kubens *`, `kubectx *`
 - **Cloud CLI**: `aws *`, `gcloud *`, `az *`, `terraform *`
 
-### **Version Control**
-- **Git**: Complete git operations (`git status`, `git diff`, `git clone`, `git push`, etc.)
+### 📁 File & System Operations
+- **File Ops**: `cat *`, `touch *`, `cp *`, `mv *`, `rm *`, `chmod *`, `chown *`
+- **System Info**: `pwd`, `ls`, `tree`, `stat *`, `file *`, `du *`, `df *`, `whoami`, `uname`, `date`, `id`
+- **Process Mgmt**: `ps *`, `kill *`, `killall *`, `jobs *`, `fg *`, `bg *`, `nohup *`
+- **System Tools**: `systemctl *`, `service *`, `top *`, `htop *`, `lsof *`, `netstat *`, `ss *`
 
-### **System & File Operations**
-- **File Ops**: `cat`, `touch`, `cp`, `mv`, `rm`, `chmod`, `chown`
-- **System**: `ps`, `kill`, `top`, `htop`, `systemctl`, `service`
-- **Network**: `ssh`, `scp`, `rsync`, `curl`, `wget`
-- **Text**: `nano`, `vim`, `vi`, `emacs`, `code`
+### 🌐 Network Tools
+- **SSH/SCP**: `ssh *`, `scp *`, `rsync *`
+- **Download**: `wget *`, `curl *`
+- **Network**: `ping *`
 
-### **Database Tools**
+### 📝 Text & Data
+- **Editors**: `nano *`, `vim *`, `vi *`, `emacs *`, `code *`
+- **Processing**: `grep *`, `awk *`, `sed *`, `jq *`, `yq *`, `toml *`
+- **Archive**: `tar *`, `unzip *`, `zip *`, `gzip *`, `gunzip *`, `bzip2 *`, `bunzip2 *`, `xz *`, `unxz *`
+
+### 🗃️ Version Control
+- **Complete Git**: `git status`, `git diff`, `git log *`, `git clone *`, `git pull *`, `git push *`, etc.
+
+### 🗄️ Database Tools
 - `mysql *`, `psql *`, `sqlite3 *`, `mongo *`
+
+---
+
+## 🔧 Advanced Configuration
+
+### Environment Variables
+
+| Variable | Purpose | Example |
+|----------|---------|---------|
+| `OPENCODE_EXEC_WRAPPER` | Path to wrapper script | `export OPENCODE_EXEC_WRAPPER="$HOME/bin/opencode-exec"` |
+| `OPENCODE_ALLOW_ONCE` | Allow one command without prompting | `OPENCODE_ALLOW_ONCE=true risky-command` |
+| `OPENCODE_ALLOWLIST` | Custom allowlist location | `export OPENCODE_ALLOWLIST="/path/to/custom.txt"` |
+
+### Custom Allowlist Location
+```bash
+# Use a custom allowlist file
+export OPENCODE_ALLOWLIST="/my/custom/allowlist.txt"
+```
+
+### Block-Only Mode (No Prompting)
+```bash
+# Only block commands, don't prompt
+export OPENCODE_BLOCK_MODE=true
+```
+
+---
+
+## 🛠️ Makefile Commands
+
+```bash
+make help          # Show all available commands
+make install       # Install wrapper and setup allowlist
+make uninstall     # Remove wrapper and optionally allowlist
+make check-deps    # Verify system dependencies
+make clean         # Remove temporary files
+```
+
+---
 
 ## 🎯 Usage Examples
 
-### Basic Usage
+### Daily Workflow
 ```bash
-# Set wrapper and start OpenCode
-export OPENCODE_EXEC_WRAPPER="$HOME/bin/opencode-exec"
+# Start OpenCode with wrapper
 opencode
 
-# Allow-once for specific commands
-OPENCODE_ALLOW_ONCE=true risky-command-with-args
+# During OpenCode session, commands will be filtered:
+- Allowed: git status, npm install, docker build
+- Prompted: rm -rf /important (will ask for permission)
+- Blocked: sudo rm -rf / (dangerous, will deny)
 ```
 
-### Managing Allowlist
+### Temporary Access
 ```bash
-# View current allowlist
-cat ~/.config/opencode/allowlist.txt
+# Allow a specific command once
+OPENCODE_ALLOW_ONCE=true ~/bin/opencode-exec "risky-command-with-args"
 
-# Add new command
-echo "new-command *" >> ~/.config/opencode/allowlist.txt
-
-# Search for specific commands
-grep "docker" ~/.config/opencode/allowlist.txt
+# Use within OpenCode recommendations
+OPENCODE_ALLOW_ONCE=true docker run --rm ubuntu bash
 ```
+
+### Allowlist Management
+```bash
+# Add all terraform commands
+echo "terraform *" >> ~/.config/opencode/allowlist.txt
+
+# Allow specific database access
+echo "mysql -u user -p db_name" >> ~/.config/opencode/allowlist.txt
+
+# View current settings
+cat ~/.config/opencode/allowlist.txt | grep -E "(docker|k8s|aws)"
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### 🔍 Diagnosis Commands
+
+```bash
+# Check if wrapper is installed
+ls -la ~/bin/opencode-exec
+
+# Verify wrapper is executable
+test -x ~/bin/opencode-exec && echo "✅ Executable" || echo "❌ Not executable"
+
+# Check allowlist exists
+test -f ~/.config/opencode/allowlist.txt && echo "✅ Allowlist exists" || echo "❌ Allowlist missing"
+
+# Check environment variable
+echo $OPENCODE_EXEC_WRAPPER
+
+# Check PATH includes ~/bin
+echo $PATH | grep -o "$HOME/bin"
+```
+
+### Common Issues & Solutions
+
+**❌ "Command not found" Error**
+```bash
+# Problem: ~/bin not in PATH
+# Solution: Add to shell profile
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**❌ "Permission denied" Error**
+```bash
+# Problem: Wrapper not executable
+# Solution: Fix permissions
+chmod +x ~/bin/opencode-exec
+```
+
+**❌ "Allowlist not working" Error**
+```bash
+# Problem: Environment variable not set
+# Solution: Set the variable
+export OPENCODE_EXEC_WRAPPER="$HOME/bin/opencode-exec"
+echo 'export OPENCODE_EXEC_WRAPPER="$HOME/bin/opencode-exec"' >> ~/.zshrc
+```
+
+**❌ Commands Always Prompt**
+```bash
+# Problem: Command not matching allowlist patterns
+# Solution: Check patterns exist
+grep "npm" ~/.config/opencode/allowlist.txt
+
+# Add broader pattern if needed
+echo "npm *" >> ~/.config/opencode/allowlist.txt
+```
+
+**❌ Interactive Prompt Not Showing**
+```bash
+# Problem: Running in non-interactive mode
+# Solution: Use allow-once or add to allowlist
+OPENCODE_ALLOW_ONCE=true ~/bin/opencode-exec "your-command"
+```
+
+---
 
 ## 🔒 Security Features
 
-1. **Automatic Setup** - Creates directory and default allowlist if missing
-2. **Flexible Patterns** - Supports exact matches and glob patterns
-3. **User Control** - Interactive prompting for unauthorized commands
-4. **Audit Trail** - All allowed commands recorded in allowlist
-5. **Exit Codes** - Returns standard exit codes (126 for denied commands)
+1. **🛡️ Default-Deny**: Only explicitly allowed commands can execute
+2. **📝 Audit Trail**: All allowed commands are recorded in allowlist
+3. **🎯 Pattern Matching**: Supports exact matches and flexible glob patterns
+4. **🤖 User Control**: Interactive approval for new commands
+5. **⚡ Temporary Access**: Allow-once mode for one-time exceptions
+6. **🔐 Proper Exit Codes**: Returns standard Unix exit codes (126 for denied)
 
-## 🛠️ Makefile Targets
+---
 
-| Target | Description |
-|--------|-------------|
-| `install` | Install wrapper and setup allowlist |
-| `uninstall` | Remove wrapper and optionally allowlist |
-| `check-deps` | Verify system dependencies |
-| `clean` | Clean temporary files |
-| `help` | Show help information |
+## 📚 File Structure
 
-## 🧪 Testing
+```
+opencode-omo-modifications/
+├── opencode-exec          # Main wrapper script
+├── allowlist.txt          # Default allowlist with 150+ commands
+├── Makefile              # Installation and management
+├── README.md              # This documentation
+└── .gitignore            # Git ignore rules
+```
+
+---
+
+## 🚀 Quick Start Summary
 
 ```bash
-# Test wrapper directly
-./opencode-exec pwd
-./opencode-exec "echo 'Hello World'"
-
-# Test allow-once
-OPENCODE_ALLOW_ONCE=true ./opencode-exec "echo 'Temporary access'"
-
-# Test with OpenCode
-export OPENCODE_EXEC_WRAPPER="./opencode-exec"
+# One-line installation
+git clone https://github.com/bhodgens/opencode-omo-modifications.git && \
+cd opencode-omo-modifications && \
+make install && \
+echo 'export OPENCODE_EXEC_WRAPPER="$HOME/bin/opencode-exec"' >> ~/.zshrc && \
+source ~/.zshrc && \
 opencode
 ```
 
-## 🔗 Integration with OpenCode
-
-Once installed, OpenCode automatically uses the wrapper when the `OPENCODE_EXEC_WRAPPER` environment variable is set. All bash command executions are filtered through the allowlist with intelligent prompting for unauthorized commands.
-
-This provides the perfect balance between security and productivity - keeping dangerous operations blocked while allowing legitimate development workflows through user approval.
+---
 
 ## 📝 License
 
-MIT License - Feel free to modify and distribute.
+MIT License - Free to use, modify, and distribute.
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch: `git checkout -b feature-name`
 3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+4. Test thoroughly with `make check-deps`
+5. Commit changes: `git commit -m "Add your feature"`
+6. Push to your fork: `git push origin feature-name`
+7. Create a Pull Request
 
-## 🐛 Troubleshooting
+## 🔗 Links
 
-### Common Issues
+- **Repository**: https://github.com/bhodgens/opencode-omo-modifications
+- **OpenCode**: https://github.com/opencode-dev/oh-my-opencode
+- **Issues**: Report bugs via GitHub Issues
 
-**Command not found:**
-```bash
-# Ensure ~/bin is in PATH
-echo $PATH | grep -o "$HOME/bin"
-export PATH="$HOME/bin:$PATH"
-```
+---
 
-**Permission denied:**
-```bash
-# Make executable
-chmod +x ~/bin/opencode-exec
-```
-
-**Allowlist not working:**
-```bash
-# Check file exists
-ls -la ~/.config/opencode/allowlist.txt
-
-# Check wrapper path
-echo $OPENCODE_EXEC_WRAPPER
-```
-
-### Getting Help
+## 🎯 TL;DR (Too Long; Didn't Read)
 
 ```bash
-make help          # Show Makefile targets
-./opencode-exec    # Show usage information
+# Install
+git clone https://github.com/bhodgens/opencode-omo-modifications.git
+cd opencode-omo-modifications
+make install
+
+# Setup shell
+echo 'export OPENCODE_EXEC_WRAPPER="$HOME/bin/opencode-exec"' >> ~/.zshrc
+source ~/.zshrc
+
+# Use
+opencode
 ```
+
+*Commands will be filtered through a smart allowlist that prompts for authorization.*
